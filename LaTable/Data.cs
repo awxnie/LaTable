@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Newtonsoft.Json;
+using System.Data;
 using System.Xml;
 
 namespace LaTable
@@ -8,8 +9,15 @@ namespace LaTable
         public DateTime dateTime = DateTime.Now;
         public DataTable dataTable = new DataTable("DataTable");
         public UserService userService = new UserService();
+        public List<KeyValuePair<string, DateTime>> dateList = new List<KeyValuePair<string, DateTime>>();
+        private string jsonFilePath =   "Data/userDates.json";
         public int currentYear;
         public int currentMonth;
+
+        public Data()
+        {
+            dateList = new List<KeyValuePair<string, DateTime>>();
+        }
 
         public void InitializeDate()
         {
@@ -17,17 +25,48 @@ namespace LaTable
             currentMonth = dateTime.Month;
         }
 
-        public void CreateAndInitializeXml()
+        public List<KeyValuePair<string, DateTime>> ReadDatesFromFile()
+        {
+            string json = File.ReadAllText(jsonFilePath);
+            return JsonConvert.DeserializeObject<List<KeyValuePair<string, DateTime>>>(json);
+        }
+
+        public void AddDateToList(string eventName, DateTime eventTime)
+        {
+            List<KeyValuePair<string, DateTime>> dateList = ReadDatesFromFile();
+            dateList.Add(new KeyValuePair<string, DateTime>(eventName, eventTime));
+            WriteDatesToJson(dateList);
+        }
+
+        public void WriteDatesToJson(List<KeyValuePair<string, DateTime>> dateList)
+        {
+            string json = JsonConvert.SerializeObject(dateList, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(jsonFilePath, json);
+        }
+
+        public void LoadDatesToList()
+        {
+            dateList = ReadDatesFromFile();
+        }
+
+        public void RemoveDateFromJson(string key, DateTime date)
+        {
+            List<KeyValuePair<string, DateTime>> dateList = ReadDatesFromFile();
+            dateList.RemoveAll(pair => pair.Key == key && pair.Value == date);
+            WriteDatesToJson(dateList);
+        }
+
+        public void CreateAndInitializeXml(int year, int month)
         {
             XmlDocument doc = new XmlDocument();
             doc.AppendChild(doc.CreateElement("Root"));
-            doc.Save(GetXmlFilePath());
+            doc.Save(GetXmlFilePath(year, month));
 
             dataTable.Columns.Clear();
             dataTable.Rows.Clear();
 
             dataTable.Columns.Add("Имя", typeof(string));
-            for (int i = 1; i <= DateTime.DaysInMonth(currentYear, currentMonth); i++)
+            for (int i = 1; i <= DateTime.DaysInMonth(year, month); i++)
             {
                 dataTable.Columns.Add(i.ToString(), typeof(string));
             }
@@ -37,17 +76,38 @@ namespace LaTable
                 dataTable.Rows.Add(userService.users[i].GetName());
             }
 
-            dataTable.WriteXml(GetXmlFilePath(), XmlWriteMode.WriteSchema);
+            dataTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
         }
 
-        public string GetXmlFilePath()
+        public void AddDateToXml(string name, DateTime date)
         {
-            return $"Data/{currentYear}{currentMonth}.xml";
+            dataTable.Clear();
+            dataTable.ReadXml(GetXmlFilePath(date.Year, date.Month));
+
+            DataRow targetRow = null;
+            foreach (DataRow row in dataTable.Rows)
+            {
+                if (row["Имя"].ToString() == name)
+                {
+                    targetRow = row;
+                    break;
+                }
+            }
+
+            string columnName = date.Day.ToString();
+            targetRow[columnName] = "Выходной";
+
+            SaveDataInXml(date.Year, date.Month);
         }
 
-        public void SaveDataInXml()
+        public string GetXmlFilePath(int year, int month)
         {
-            dataTable.WriteXml(GetXmlFilePath(), XmlWriteMode.WriteSchema);
+            return $"Data/{year}{month}.xml";
+        }
+
+        public void SaveDataInXml(int year, int month)
+        {
+            dataTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
         }
 
         public void IncrementMonth()

@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text.Json;
+using System.Windows.Forms;
 
 namespace LaTable
 {
@@ -28,13 +29,13 @@ namespace LaTable
         {
             data.dataTable.Columns.Clear();
             data.dataTable.Rows.Clear();
-            try
+            if (!File.Exists($"Data/{data.currentYear}{data.currentMonth}.xml"))
             {
-                data.dataTable.ReadXml(data.GetXmlFilePath());
+                data.CreateAndInitializeXml(data.currentYear, data.currentMonth);
             }
-            catch
+            else
             {
-                data.CreateAndInitializeXml();
+                data.dataTable.ReadXml(data.GetXmlFilePath(data.currentYear, data.currentMonth));
             }
             calendarGrid.DataSource = data.dataTable;
         }
@@ -60,6 +61,28 @@ namespace LaTable
             if (result == DialogResult.OK)
             {
                 Application.Exit();
+            }
+        }
+
+        private void inputButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                data.AddDateToList(user.GetName(), new DateTime(
+                int.Parse(yearTextBox.Text),
+                int.Parse(monthTextBox.Text),
+                int.Parse(dayTextBox.Text)));
+
+                if (!File.Exists($"Data/{int.Parse(yearTextBox.Text)}{int.Parse(monthTextBox.Text)}.xml"))
+                {
+                    data.CreateAndInitializeXml(int.Parse(yearTextBox.Text), int.Parse(monthTextBox.Text));
+                }
+                
+                MessageBox.Show("Выходной заказан");
+            }
+            catch
+            {
+                MessageBox.Show("Некорректный ввод");
             }
         }
     }

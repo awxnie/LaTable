@@ -120,7 +120,7 @@
             this.calendarGrid.RowHeadersVisible = false;
             this.calendarGrid.RowHeadersWidth = 51;
             this.calendarGrid.RowTemplate.Height = 29;
-            this.calendarGrid.Size = new System.Drawing.Size(1141, 635);
+            this.calendarGrid.Size = new System.Drawing.Size(1141, 590);
             this.calendarGrid.TabIndex = 0;
             // 
             // tabPage2
@@ -146,6 +146,7 @@
             this.inputButton.TabIndex = 4;
             this.inputButton.Text = "Ввод";
             this.inputButton.UseVisualStyleBackColor = true;
+            this.inputButton.Click += new System.EventHandler(this.inputButton_Click);
             // 
             // dayTextBox
             // 
