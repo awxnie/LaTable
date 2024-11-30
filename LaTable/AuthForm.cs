@@ -9,6 +9,7 @@ namespace LaTable
         public AuthForm()
         {
             InitializeComponent();
+            Directory.CreateDirectory("Data");
         }
 
         private void authButton_Click(object sender, EventArgs e)
