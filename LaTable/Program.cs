@@ -11,8 +11,14 @@ namespace LaTable
             //UserService users = new UserService();
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
-            Directory.CreateDirectory("Data");
-            File.WriteAllText("Data/userDates.json", "[]");
+            if (Directory.Exists("Data"))
+            {
+                Directory.CreateDirectory("Data");
+            }
+            if (Directory.Exists("Data/userDates.json"))
+            {
+                File.WriteAllText("Data/userDates.json", "[]");
+            }
             ApplicationConfiguration.Initialize();
             Application.Run(new AuthForm());
         }
