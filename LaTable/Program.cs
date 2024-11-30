@@ -2,23 +2,9 @@ namespace LaTable
 {
     internal static class Program
     {
-        /// <summary>
-        ///  The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
-            //UserService users = new UserService();
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            if (Directory.Exists("Data"))
-            {
-                Directory.CreateDirectory("Data");
-            }
-            if (Directory.Exists("Data/userDates.json"))
-            {
-                File.WriteAllText("Data/userDates.json", "[]");
-            }
             ApplicationConfiguration.Initialize();
             Application.Run(new AuthForm());
         }

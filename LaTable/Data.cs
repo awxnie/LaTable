@@ -16,7 +16,20 @@ namespace LaTable
 
         public Data()
         {
+            CreateDataFiles();
             dateList = new List<KeyValuePair<string, DateTime>>();
+        }
+
+        private void CreateDataFiles()
+        {
+            if (!Directory.Exists("Data"))
+            {
+                Directory.CreateDirectory("Data");
+            }
+            if (!File.Exists("Data/userDates.json"))
+            {
+                File.WriteAllText("Data/userDates.json", "[]");
+            }
         }
 
         public void InitializeDate()
