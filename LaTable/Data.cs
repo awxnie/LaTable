@@ -78,15 +78,15 @@ namespace LaTable
             dataTable.Columns.Clear();
             dataTable.Rows.Clear();
 
-            dataTable.Columns.Add("Имя", typeof(string));
+            dataTable.Columns.Add("Имя/Число", typeof(string));
             for (int i = 1; i <= DateTime.DaysInMonth(year, month); i++)
             {
                 dataTable.Columns.Add(i.ToString(), typeof(string));
             }
 
-            for (int i = 0; i < userService.users.Count; i++)
+            foreach (var user in userService.users)
             {
-                dataTable.Rows.Add(userService.users[i].GetName());
+                dataTable.Rows.Add(user.GetName());
             }
 
             dataTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
@@ -100,7 +100,7 @@ namespace LaTable
             DataRow targetRow = null;
             foreach (DataRow row in dataTable.Rows)
             {
-                if (row["Имя"].ToString() == name)
+                if (row["Имя/Число"].ToString() == name)
                 {
                     targetRow = row;
                     break;
@@ -108,7 +108,7 @@ namespace LaTable
             }
 
             string columnName = date.Day.ToString();
-            targetRow[columnName] = "Выходной";
+            targetRow[columnName] = "ВХ";
 
             SaveDataInXml(date.Year, date.Month);
         }

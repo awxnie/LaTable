@@ -100,7 +100,7 @@
             // 
             this.dateLabel.AutoSize = true;
             this.dateLabel.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.dateLabel.Location = new System.Drawing.Point(14, 14);
+            this.dateLabel.Location = new System.Drawing.Point(-2, 9);
             this.dateLabel.Name = "dateLabel";
             this.dateLabel.Size = new System.Drawing.Size(81, 41);
             this.dateLabel.TabIndex = 1;
@@ -108,11 +108,14 @@
             // 
             // calendarGrid
             // 
+            this.calendarGrid.AllowUserToAddRows = false;
             this.calendarGrid.AllowUserToDeleteRows = false;
             this.calendarGrid.AllowUserToResizeColumns = false;
             this.calendarGrid.AllowUserToResizeRows = false;
             this.calendarGrid.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.calendarGrid.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.calendarGrid.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.calendarGrid.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.calendarGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.calendarGrid.Location = new System.Drawing.Point(6, 58);
             this.calendarGrid.Name = "calendarGrid";
@@ -120,8 +123,9 @@
             this.calendarGrid.RowHeadersVisible = false;
             this.calendarGrid.RowHeadersWidth = 51;
             this.calendarGrid.RowTemplate.Height = 29;
-            this.calendarGrid.Size = new System.Drawing.Size(1141, 590);
+            this.calendarGrid.Size = new System.Drawing.Size(1138, 581);
             this.calendarGrid.TabIndex = 0;
+            this.calendarGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.calendarGrid_CellValueChanged);
             // 
             // tabPage2
             // 
@@ -212,6 +216,7 @@
             this.Name = "UserForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "UserForm";
+            this.Load += new System.EventHandler(this.UserForm_Load);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
