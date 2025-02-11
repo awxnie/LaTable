@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace LaTable
 {
-    internal class Data
+    public class Data
     {
         public DateTime dateTime = DateTime.Now;
         public DataTable dataTable = new DataTable("DataTable");
@@ -121,6 +121,22 @@ namespace LaTable
         public void SaveDataInXml(int year, int month)
         {
             dataTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
+        }
+
+        public void ClearDataInXml(int year, int month)
+        {
+            dataTable.Clear();
+            dataTable.ReadXml(GetXmlFilePath(year, month));
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                for (int i = 1; i < dataTable.Columns.Count; i++)
+                {
+                    row[i] = string.Empty;
+                }
+            }
+
+            SaveDataInXml(year, month);
         }
 
         public void IncrementMonth()

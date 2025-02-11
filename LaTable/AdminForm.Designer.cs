@@ -45,6 +45,8 @@
             this.label1 = new System.Windows.Forms.Label();
             this.exitButton = new System.Windows.Forms.Button();
             this.nameLabel = new System.Windows.Forms.Label();
+            this.makeButton = new System.Windows.Forms.Button();
+            this.clearButton = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.backButton)).BeginInit();
@@ -66,6 +68,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.clearButton);
+            this.tabPage1.Controls.Add(this.makeButton);
             this.tabPage1.Controls.Add(this.saveButton);
             this.tabPage1.Controls.Add(this.backButton);
             this.tabPage1.Controls.Add(this.forwardButton);
@@ -81,9 +85,9 @@
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(517, 9);
+            this.saveButton.Location = new System.Drawing.Point(486, 5);
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(145, 41);
+            this.saveButton.Size = new System.Drawing.Size(180, 50);
             this.saveButton.TabIndex = 4;
             this.saveButton.Text = "Сохранить";
             this.saveButton.UseVisualStyleBackColor = true;
@@ -98,7 +102,7 @@
             this.backButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.backButton.TabIndex = 3;
             this.backButton.TabStop = false;
-            this.backButton.Click += new System.EventHandler(this.backButton_Click);
+            //this.backButton.Click += new System.EventHandler(this.backButton_Click);
             // 
             // forwardButton
             // 
@@ -109,7 +113,7 @@
             this.forwardButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.forwardButton.TabIndex = 2;
             this.forwardButton.TabStop = false;
-            this.forwardButton.Click += new System.EventHandler(this.forwardButton_Click);
+            //this.forwardButton.Click += new System.EventHandler(this.forwardButton_Click);
             // 
             // dateLabel
             // 
@@ -139,7 +143,7 @@
             this.calendarGrid.RowTemplate.Height = 29;
             this.calendarGrid.Size = new System.Drawing.Size(1138, 590);
             this.calendarGrid.TabIndex = 0;
-            this.calendarGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.calendarGrid_CellValueChanged);
+            //this.calendarGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.calendarGrid_CellValueChanged);
             // 
             // tabPage2
             // 
@@ -246,7 +250,7 @@
             this.exitButton.TabIndex = 4;
             this.exitButton.Text = "Выход";
             this.exitButton.UseVisualStyleBackColor = true;
-            this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
+            //this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
             // 
             // nameLabel
             // 
@@ -257,6 +261,25 @@
             this.nameLabel.TabIndex = 5;
             this.nameLabel.Text = "Имя";
             this.nameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // makeButton
+            // 
+            this.makeButton.Location = new System.Drawing.Point(672, 5);
+            this.makeButton.Name = "makeButton";
+            this.makeButton.Size = new System.Drawing.Size(180, 50);
+            this.makeButton.TabIndex = 5;
+            this.makeButton.Text = "Составить расписание";
+            this.makeButton.UseVisualStyleBackColor = true;
+            // 
+            // clearButton
+            // 
+            this.clearButton.Location = new System.Drawing.Point(300, 5);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(180, 50);
+            this.clearButton.TabIndex = 6;
+            this.clearButton.Text = "Очистить";
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
             // 
             // AdminForm
             // 
@@ -301,5 +324,7 @@
         private Label label3;
         private Label label2;
         private Label label1;
+        private Button clearButton;
+        private Button makeButton;
     }
 }

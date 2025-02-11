@@ -83,7 +83,7 @@
             this.backButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.backButton.TabIndex = 3;
             this.backButton.TabStop = false;
-            this.backButton.Click += new System.EventHandler(this.backButton_Click);
+            //this.backButton.Click += new System.EventHandler(this.backButton_Click);
             // 
             // forwardButton
             // 
@@ -94,7 +94,7 @@
             this.forwardButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.forwardButton.TabIndex = 2;
             this.forwardButton.TabStop = false;
-            this.forwardButton.Click += new System.EventHandler(this.forwardButton_Click);
+            //this.forwardButton.Click += new System.EventHandler(this.forwardButton_Click);
             // 
             // dateLabel
             // 
@@ -125,7 +125,7 @@
             this.calendarGrid.RowTemplate.Height = 29;
             this.calendarGrid.Size = new System.Drawing.Size(1138, 581);
             this.calendarGrid.TabIndex = 0;
-            this.calendarGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.calendarGrid_CellValueChanged);
+            //this.calendarGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.calendarGrid_CellValueChanged);
             // 
             // tabPage2
             // 
@@ -203,7 +203,7 @@
             this.exitButton.TabIndex = 3;
             this.exitButton.Text = "Выход";
             this.exitButton.UseVisualStyleBackColor = true;
-            this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
+            //this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
             // 
             // UserForm
             // 
