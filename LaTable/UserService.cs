@@ -11,7 +11,7 @@ namespace LaTable
     {
         public List<User> users = new List<User>
         {
-            new User("Надежда", "nadejda", "123"),
+            new User("Надежда", "asd", "123"),
             new User("Алексей", "aleksey", "123"),
             new User("Сабина", "sabina", "123"),
             new User("Александр А.", "sanya1", "123"),

@@ -31,14 +31,13 @@ namespace LaTable
         {
             try
             {
-                DateTime date = DateTime.ParseExact(yearTextBox.Text, "dd.MM.yyyy", CultureInfo.InvariantCulture);
+                DateTime date = DateTime.ParseExact(dateTextBox.Text, "dd.MM.yyyy", CultureInfo.InvariantCulture);
                 data.AddDateToList(user.GetName(), date);
 
-                if (!File.Exists($"Data/{int.Parse(yearTextBox.Text)}{int.Parse(monthTextBox.Text)}.xml"))
+                if (!File.Exists($"Data/{date.Year}{date.Month}.xml"))
                 {
-                    data.CreateAndInitializeXml(int.Parse(yearTextBox.Text), int.Parse(monthTextBox.Text));
+                    data.CreateAndInitializeXml(date.Year, date.Month);
                 }
-                
                 MessageBox.Show("Выходной заказан");
             }
             catch
