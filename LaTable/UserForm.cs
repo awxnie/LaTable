@@ -2,7 +2,7 @@
 
 namespace LaTable
 {
-    public partial class UserForm : BaseForm
+    public partial class UserForm : MiddleForm
     {
         private User user;
 

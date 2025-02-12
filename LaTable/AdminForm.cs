@@ -1,8 +1,9 @@
-﻿using System.Data;
+﻿using System.ComponentModel;
+using System.Data;
 
 namespace LaTable
 {
-    public partial class AdminForm : BaseForm
+    public partial class AdminForm : MiddleForm
     {
         private int yOffset = 10;
         public override DataGridView CalendarGrid => calendarGrid;
