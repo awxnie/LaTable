@@ -100,7 +100,7 @@
             // 
             dateLabel.AutoSize = true;
             dateLabel.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
-            dateLabel.Location = new Point(-2, 7);
+            dateLabel.Location = new Point(-1, 7);
             dateLabel.Name = "dateLabel";
             dateLabel.Size = new Size(65, 32);
             dateLabel.TabIndex = 1;

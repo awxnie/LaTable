@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data;
+using System.Windows.Forms;
 
 namespace LaTable
 {
@@ -41,7 +42,6 @@ namespace LaTable
                     TextAlign = ContentAlignment.MiddleCenter,
                     Tag = item
                 };
-                tabPage2.Controls.Add(nameLabel);
 
                 Label timeLabel = new Label
                 {
@@ -52,7 +52,6 @@ namespace LaTable
                     TextAlign = ContentAlignment.MiddleCenter,
                     Tag = item
                 };
-                tabPage2.Controls.Add(timeLabel);
 
                 Button actionButton = new Button
                 {
@@ -62,7 +61,10 @@ namespace LaTable
                     Tag = item
                 };
                 actionButton.Click += requestAcceptButton_Click;
-                tabPage2.Controls.Add(actionButton);
+
+                datePanel.Controls.Add(timeLabel);
+                datePanel.Controls.Add(nameLabel);
+                datePanel.Controls.Add(actionButton);
 
                 yOffset += 60;
             }
@@ -71,14 +73,16 @@ namespace LaTable
         private void RearrangeControls()
         {
             yOffset = 10;
-            foreach (Control control in tabPage2.Controls)
+            foreach (Control control in datePanel.Controls)
             {
                 if (control is Label || control is Button)
                 {
                     control.Location = new Point(control.Location.X, yOffset);
 
-                    if (control.Location.X == 270)
+                    if (control is Button)
+                    {
                         yOffset += 60;
+                    }
                 }
             }
         }
@@ -106,14 +110,14 @@ namespace LaTable
             if (clickedButton == null || !(clickedButton.Tag is KeyValuePair<string, DateTime> date))
                 return;
 
-            var controlsToRemove = tabPage2.Controls
+            var controlsToRemove = datePanel.Controls
                 .Cast<Control>()
                 .Where(c => c.Tag != null && c.Tag.Equals(date))
                 .ToList();
 
             foreach (var control in controlsToRemove)
             {
-                tabPage2.Controls.Remove(control);
+                datePanel.Controls.Remove(control);
                 control.Dispose();
             }
 
@@ -123,6 +127,11 @@ namespace LaTable
 
             data.AddDateToXml(date.Key, date.Value);
             ShowDataInGrid();
+        }
+
+        private void makeButton_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

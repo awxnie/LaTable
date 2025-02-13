@@ -14,7 +14,7 @@ namespace LaTable
 
         private void authButton_Click(object sender, EventArgs e)
         {
-            if (loginTextBox.Text == "admin" && passwordTextBox.Text == "123")
+            if (loginTextBox.Text == "admin" || loginTextBox.Text == "zxc" && passwordTextBox.Text == "123")
             {
                 adminForm.FormClosed += (s, args) => this.Close();
                 adminForm.Show();
