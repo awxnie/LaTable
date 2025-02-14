@@ -3,35 +3,16 @@ using System.Globalization;
 
 namespace LaTable
 {
-    public class AbstractCommunicatorProvider : TypeDescriptionProvider
-    {
-        public AbstractCommunicatorProvider() : base(TypeDescriptor.GetProvider(typeof(Form)))
-        {
-        }
-        public override Type GetReflectionType(Type objectType, object instance)
-        {
-            return typeof(Form);
-        }
-        public override object CreateInstance(IServiceProvider provider, Type objectType, Type[] argTypes, object[] args)
-        {
-            objectType = typeof(Form);
-            return base.CreateInstance(provider, objectType, argTypes, args);
-        }
-    }
-
-    [TypeDescriptionProvider(typeof(AbstractCommunicatorProvider))]
-    public abstract class BaseForm : Form
+    public class BaseForm : Form
     {
         public Data data = new Data();
-        public abstract DataGridView CalendarGrid { get; }
-        public abstract Label DateLabel { get; }
 
         public BaseForm()
         {
             data.InitializeDate();
         }
 
-        public virtual void SetDataLabel()
+        public void SetDataLabel(Label DateLabel)
         {
             var currentDate = new DateTime(data.currentYear, data.currentMonth, 1);
             string monthName = currentDate.ToString("MMMM", new CultureInfo("ru-RU"));
@@ -41,7 +22,7 @@ namespace LaTable
             DateLabel.Visible = true;
         }
 
-        public virtual void ShowDataInGrid()
+        public void ShowDataInGrid(DataGridView CalendarGrid)
         {
             data.dataTable.Columns.Clear();
             data.dataTable.Rows.Clear();
@@ -68,26 +49,26 @@ namespace LaTable
                 column.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
 
-            UpdateCellColors();
+            UpdateCellColors(CalendarGrid);
         }
 
-        public virtual void ForwardButtonClick(object sender, EventArgs e)
+        public void ForwardButtonClick(object sender, EventArgs e, Label DateLabel, DataGridView CalendarGrid)
         {
             data.SaveDataInXml(data.currentYear, data.currentMonth);
             data.IncrementMonth();
-            SetDataLabel();
-            ShowDataInGrid();
+            SetDataLabel(DateLabel);
+            ShowDataInGrid(CalendarGrid);
         }
 
-        public virtual void BackButtonClick(object sender, EventArgs e)
+        public void BackButtonClick(object sender, EventArgs e, Label DateLabel, DataGridView CalendarGrid)
         {
             data.SaveDataInXml(data.currentYear, data.currentMonth);
             data.DecrementMonth();
-            SetDataLabel();
-            ShowDataInGrid();
+            SetDataLabel(DateLabel);
+            ShowDataInGrid(CalendarGrid);
         }
 
-        public virtual void ExitButtonClick(object sender, EventArgs e)
+        public void ExitButtonClick(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Вы уверены, что хотите выйти?", "Подтверждение",
                 MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
@@ -100,13 +81,13 @@ namespace LaTable
             }
         }
 
-        public virtual void CalendarGridCellValueChanged(object sender, DataGridViewCellEventArgs e)
+        public void CalendarGridCellValueChanged(object sender, DataGridViewCellEventArgs e, DataGridView CalendarGrid)
         {
             DataGridViewCell cell = CalendarGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
             UpdateCellColor(cell);
         }
 
-        public virtual Color GetColorForValue(string value)
+        public Color GetColorForValue(string value)
         {
             switch (value)
             {
@@ -122,18 +103,20 @@ namespace LaTable
                     return Color.SpringGreen;
                 case "R":
                     return Color.Magenta;
+                case "О":
+                    return Color.Pink;
                 default:
                     return Color.White;
             }
         }
 
-        public virtual void UpdateCellColor(DataGridViewCell cell)
+        public void UpdateCellColor(DataGridViewCell cell)
         {
             string value = cell.Value?.ToString().ToUpper();
             cell.Style.BackColor = GetColorForValue(value);
         }
 
-        public virtual void UpdateCellColors()
+        public void UpdateCellColors(DataGridView CalendarGrid)
         {
             foreach (DataGridViewRow row in CalendarGrid.Rows)
             {

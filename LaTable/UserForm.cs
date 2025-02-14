@@ -2,29 +2,26 @@
 
 namespace LaTable
 {
-    public partial class UserForm : MiddleForm
+    public partial class UserForm : BaseForm
     {
         private User user;
-
-        public override DataGridView CalendarGrid => calendarGrid;
-        public override Label DateLabel => dateLabel;
 
         public UserForm(User User)
         {
             InitializeComponent();
-            SetDataLabel();
+            SetDataLabel(dateLabel);
             user = User;
             nameLabel.Text = user.GetName();
 
-            forwardButton.Click += ForwardButtonClick;
-            backButton.Click += BackButtonClick;
+            forwardButton.Click += (sender, e) => ForwardButtonClick(sender, e, dateLabel, calendarGrid);
+            backButton.Click += (sender, e) => ForwardButtonClick(sender, e, dateLabel, calendarGrid);
+            calendarGrid.CellValueChanged += (sender, e) => CalendarGridCellValueChanged(sender, e, calendarGrid);
             exitButton.Click += ExitButtonClick;
-            calendarGrid.CellValueChanged += CalendarGridCellValueChanged;
         }
 
         private void UserForm_Load(object sender, EventArgs e)
         {
-            ShowDataInGrid();
+            ShowDataInGrid(calendarGrid);
         }
 
         private void inputButton_Click(object sender, EventArgs e)

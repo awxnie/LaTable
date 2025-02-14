@@ -4,27 +4,25 @@ using System.Windows.Forms;
 
 namespace LaTable
 {
-    public partial class AdminForm : MiddleForm
+    public partial class AdminForm : BaseForm
     {
         private int yOffset = 10;
-        public override DataGridView CalendarGrid => calendarGrid;
-        public override Label DateLabel => dateLabel;
 
         public AdminForm()
         {
             InitializeComponent();
             nameLabel.Text = "Admin";
-            SetDataLabel();
+            SetDataLabel(dateLabel);
 
-            forwardButton.Click += ForwardButtonClick;
-            backButton.Click += BackButtonClick;
+            forwardButton.Click += (sender, e) => ForwardButtonClick(sender, e, dateLabel, calendarGrid);
+            backButton.Click += (sender, e) => BackButtonClick(sender, e, dateLabel, calendarGrid);
+            calendarGrid.CellValueChanged += (sender, e) => CalendarGridCellValueChanged(sender, e, calendarGrid);
             exitButton.Click += ExitButtonClick;
-            calendarGrid.CellValueChanged += CalendarGridCellValueChanged;
         }
 
         private void AdminForm_Load(object sender, EventArgs e)
         {
-            ShowDataInGrid();
+            ShowDataInGrid(calendarGrid);
             data.LoadDatesToList();
             AddDateControls();
         }
@@ -100,7 +98,7 @@ namespace LaTable
             if (result == DialogResult.OK)
             {
                 data.ClearDataInXml(data.currentYear, data.currentMonth);
-                ShowDataInGrid();
+                ShowDataInGrid(calendarGrid);
             }
         }
 
@@ -126,7 +124,7 @@ namespace LaTable
             RearrangeControls();
 
             data.AddDateToXml(date.Key, date.Value);
-            ShowDataInGrid();
+            ShowDataInGrid(calendarGrid);
         }
 
         private void makeButton_Click(object sender, EventArgs e)
