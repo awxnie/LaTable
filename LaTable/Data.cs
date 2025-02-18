@@ -7,7 +7,7 @@ namespace LaTable
     public class Data
     {
         public DateTime dateTime = DateTime.Now;
-        public DataTable dataTable = new DataTable("DataTable");
+        public DataTable dateTable = new DataTable("DataTable");
         public UserService userService = new UserService();
         public List<KeyValuePair<string, DateTime>> dateList = new List<KeyValuePair<string, DateTime>>();
         private string jsonFilePath =   "Data/userDates.json";
@@ -75,30 +75,69 @@ namespace LaTable
             doc.AppendChild(doc.CreateElement("Root"));
             doc.Save(GetXmlFilePath(year, month));
 
-            dataTable.Columns.Clear();
-            dataTable.Rows.Clear();
+            GenerateDateTable(year, month);
+            dateTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
+        }
 
-            dataTable.Columns.Add("Имя/Число", typeof(string));
-            for (int i = 1; i <= DateTime.DaysInMonth(year, month); i++)
+        public void GenerateDateTable(int year, int month)
+        {
+            int monday, sunday;
+            int daysInMonth = DateTime.DaysInMonth(year, month);
+            DateTime date = new DateTime(year, month, 1);
+            dateTable.Clear();
+            dateTable.Columns.Add("Имя/Число__", typeof(string));
+            while (true)
             {
-                dataTable.Columns.Add(i.ToString(), typeof(string));
+                if (date.DayOfWeek == DayOfWeek.Monday)
+                {
+                    monday = date.Day;
+                    break;
+                }
+                else
+                {
+                    date = date.AddDays(1);
+                }
+            }
+
+            date = new DateTime(year, month, daysInMonth);
+            while (true)
+            {
+                if (date.DayOfWeek == DayOfWeek.Sunday)
+                {
+                    sunday = date.Day;
+                    break;
+                }
+                else
+                {
+                    date = date.AddDays(1);
+                }
+            }
+
+            for (int i = monday; i <= daysInMonth; i++)
+            {
+                dateTable.Columns.Add($"{i}_1", typeof(string));
+            }
+            if(sunday < 7)
+            {
+                for (int i = 1; i <= sunday; i++)
+                {
+                    dateTable.Columns.Add($"{i}_2", typeof(string));
+                }
             }
 
             foreach (var user in userService.users)
             {
-                dataTable.Rows.Add(user.GetName());
+                dateTable.Rows.Add(user.GetName());
             }
-
-            dataTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
         }
 
         public void AddDateToXml(string name, DateTime date)
         {
-            dataTable.Clear();
-            dataTable.ReadXml(GetXmlFilePath(date.Year, date.Month));
+            dateTable.Clear();
+            dateTable.ReadXml(GetXmlFilePath(date.Year, date.Month));
 
             DataRow targetRow = null;
-            foreach (DataRow row in dataTable.Rows)
+            foreach (DataRow row in dateTable.Rows)
             {
                 if (row["Имя/Число"].ToString() == name)
                 {
@@ -120,17 +159,17 @@ namespace LaTable
 
         public void SaveDataInXml(int year, int month)
         {
-            dataTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
+            dateTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
         }
 
         public void ClearDataInXml(int year, int month)
         {
-            dataTable.Clear();
-            dataTable.ReadXml(GetXmlFilePath(year, month));
+            dateTable.Clear();
+            dateTable.ReadXml(GetXmlFilePath(year, month));
 
-            foreach (DataRow row in dataTable.Rows)
+            foreach (DataRow row in dateTable.Rows)
             {
-                for (int i = 1; i < dataTable.Columns.Count; i++)
+                for (int i = 1; i < dateTable.Columns.Count; i++)
                 {
                     row[i] = string.Empty;
                 }

@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
+using System.Data;
 using System.Globalization;
+using System.Windows.Forms;
 
 namespace LaTable
 {
@@ -24,12 +26,12 @@ namespace LaTable
 
         public void ShowDataInGrid(DataGridView CalendarGrid)
         {
-            data.dataTable.Columns.Clear();
-            data.dataTable.Rows.Clear();
+            data.dateTable.Columns.Clear();
+            data.dateTable.Rows.Clear();
             string xmlFilePath = data.GetXmlFilePath(data.currentYear, data.currentMonth);
             if (File.Exists(xmlFilePath))
             {
-                data.dataTable.ReadXml(xmlFilePath);
+                data.dateTable.ReadXml(xmlFilePath);
             }
             else
             {
@@ -37,7 +39,11 @@ namespace LaTable
             }
             CalendarGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             CalendarGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
-            CalendarGrid.DataSource = data.dataTable;
+            CalendarGrid.DataSource = data.dateTable;
+            foreach (DataGridViewColumn column in CalendarGrid.Columns)
+            {
+                column.HeaderText = column.HeaderText.Substring(0, column.HeaderText.Length - 2);
+            }
             CalendarGrid.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             CalendarGrid.Columns[0].ReadOnly = true;
             for (int i = 1; i < CalendarGrid.Columns.Count; i++)
@@ -83,8 +89,11 @@ namespace LaTable
 
         public void CalendarGridCellValueChanged(object sender, DataGridViewCellEventArgs e, DataGridView CalendarGrid)
         {
-            DataGridViewCell cell = CalendarGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
-            UpdateCellColor(cell);
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0 && e.RowIndex < CalendarGrid.Rows.Count && e.ColumnIndex < CalendarGrid.Columns.Count)
+            {
+                DataGridViewCell cell = CalendarGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                UpdateCellColor(cell);
+            }
         }
 
         public Color GetColorForValue(string value)
