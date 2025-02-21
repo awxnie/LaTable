@@ -87,7 +87,7 @@ namespace LaTable
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            data.SaveDataInXml(data.currentYear, data.currentMonth);
+            data.SaveDataInXml();
             MessageBox.Show("Данные внесены");
         }
 
@@ -97,7 +97,7 @@ namespace LaTable
                 MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (result == DialogResult.OK)
             {
-                data.ClearDataInXml(data.currentYear, data.currentMonth);
+                data.ClearDataInXml();
                 ShowDataInGrid(calendarGrid);
             }
         }
@@ -129,9 +129,8 @@ namespace LaTable
 
         private void makeButton_Click(object sender, EventArgs e)
         {
-
+            data.AddShifts();
+            UpdateCellColors(calendarGrid);
         }
-
-
     }
 }

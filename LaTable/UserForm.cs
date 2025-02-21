@@ -33,7 +33,7 @@ namespace LaTable
 
                 if (!File.Exists($"Data/{date.Year}{date.Month}.xml"))
                 {
-                    data.CreateAndInitializeXml(date.Year, date.Month);
+                    data.CreateAndInitializeXml();
                 }
                 MessageBox.Show("Выходной заказан");
             }

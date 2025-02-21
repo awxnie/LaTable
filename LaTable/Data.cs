@@ -1,11 +1,14 @@
-﻿ using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 using System.Data;
+using System.Data.Common;
 using System.Xml;
 
 namespace LaTable
 {
     public class Data
     {
+        public Random random = new Random();
         public DateTime dateTime = DateTime.Now;
         public DataTable dateTable = new DataTable("DataTable");
         public UserService userService = new UserService();
@@ -13,6 +16,7 @@ namespace LaTable
         private string jsonFilePath =   "Data/userDates.json";
         public int currentYear;
         public int currentMonth;
+        public int daysInMonth;
 
         public Data()
         {
@@ -32,10 +36,11 @@ namespace LaTable
             }
         }
 
-        public void InitializeDate()
+            public void InitializeDate()
         {
             currentYear = dateTime.Year;
             currentMonth = dateTime.Month;
+            daysInMonth = DateTime.DaysInMonth(currentYear, currentMonth);
         }
 
         public List<KeyValuePair<string, DateTime>> ReadDatesFromFile()
@@ -69,59 +74,28 @@ namespace LaTable
             WriteDatesToJson(dateList);
         }
 
-        public void CreateAndInitializeXml(int year, int month)
+        public void CreateAndInitializeXml()
         {
             XmlDocument doc = new XmlDocument();
             doc.AppendChild(doc.CreateElement("Root"));
-            doc.Save(GetXmlFilePath(year, month));
+            doc.Save(GetXmlFilePath());
 
-            GenerateDateTable(year, month);
-            dateTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
+            GenerateDateTable();
+            dateTable.WriteXml(GetXmlFilePath(), XmlWriteMode.WriteSchema);
         }
 
-        public void GenerateDateTable(int year, int month)
+        public void GenerateDateTable()
         {
-            int monday, sunday;
-            int daysInMonth = DateTime.DaysInMonth(year, month);
-            DateTime date = new DateTime(year, month, 1);
-            dateTable.Clear();
             dateTable.Columns.Add("Имя/Число__", typeof(string));
-            while (true)
+            for (int i = GetDayOfWeek(DayOfWeek.Monday); i <= daysInMonth; i++)
             {
-                if (date.DayOfWeek == DayOfWeek.Monday)
-                {
-                    monday = date.Day;
-                    break;
-                }
-                else
-                {
-                    date = date.AddDays(1);
-                }
+                dateTable.Columns.Add($"{i}.1", typeof(string));
             }
-
-            date = new DateTime(year, month, daysInMonth);
-            while (true)
+            if (GetDayOfWeek(DayOfWeek.Sunday) < 7)
             {
-                if (date.DayOfWeek == DayOfWeek.Sunday)
+                for (int i = 1; i <= GetDayOfWeek(DayOfWeek.Sunday); i++)
                 {
-                    sunday = date.Day;
-                    break;
-                }
-                else
-                {
-                    date = date.AddDays(1);
-                }
-            }
-
-            for (int i = monday; i <= daysInMonth; i++)
-            {
-                dateTable.Columns.Add($"{i}_1", typeof(string));
-            }
-            if(sunday < 7)
-            {
-                for (int i = 1; i <= sunday; i++)
-                {
-                    dateTable.Columns.Add($"{i}_2", typeof(string));
+                    dateTable.Columns.Add($"{i}.2", typeof(string));
                 }
             }
 
@@ -131,15 +105,148 @@ namespace LaTable
             }
         }
 
+        public void AddShifts()
+        {
+            for (int i = 0; i < dateTable.Rows.Count; i++)
+            {
+                for (int j = 1; j < dateTable.Columns.Count; j++)
+                {
+                    dateTable.Rows[i][j] = "";
+                    /*if (!dateTable.Rows[i][j].ToString().Contains("ВХ"))
+                    {
+                        dateTable.Rows[i][j] = "";
+                    }*/
+                }
+            }
+            AddRegularShifts();
+            AddRandomShifts();
+            AddCycleShifts();
+        }
+
+        public void AddRegularShifts()
+        {
+            int mondayIndex = GetDayOfWeek(DayOfWeek.Monday);
+            int sundayIndex = GetDayOfWeek(DayOfWeek.Sunday);
+            int totalDays = daysInMonth - mondayIndex + sundayIndex + 1;
+            DateTime currentDate = new DateTime(currentYear, currentMonth, mondayIndex);
+
+            for (int i = 1; i < totalDays; i++)
+            {
+                switch (currentDate.DayOfWeek)
+                {
+                    case DayOfWeek.Tuesday:
+                        dateTable.Rows[0][i] = "R";
+                        break;
+                    case DayOfWeek.Monday:
+                        dateTable.Rows[1][i] = "R";
+                        break;
+                    case DayOfWeek.Wednesday:
+                        dateTable.Rows[2][i] = "R";
+                        break;
+                }
+                currentDate = currentDate.AddDays(1);
+            }
+            dateTable.Rows[2][daysInMonth - mondayIndex + 1] = "R";
+        }
+
+        public void AddRandomShifts()
+        {
+            int mondayIndex = GetDayOfWeek(DayOfWeek.Monday);
+            int sundayIndex = GetDayOfWeek(DayOfWeek.Sunday);
+            int totalDays = daysInMonth - mondayIndex + sundayIndex + 1;
+            int numberOfWeeks = totalDays / 7;
+            int currentWeekStart = mondayIndex;
+
+            for (int week = 0; week < numberOfWeeks; week++)
+            {
+                for (int nameIndex = 0; nameIndex <= userService.users.Count - 3; nameIndex++)
+                {
+                    for (int shiftCount = 0; shiftCount < 2; shiftCount++)
+                    {
+                        int randomDay = random.Next(currentWeekStart, currentWeekStart + 7);
+
+                        if (string.IsNullOrWhiteSpace(dateTable.Rows[nameIndex][randomDay - mondayIndex + 1].ToString()))
+                        {
+                            dateTable.Rows[nameIndex][randomDay - mondayIndex + 1] = "ВХ";
+                        }
+                        else
+                        {
+                            shiftCount--;
+                        }
+                    }
+                }
+                currentWeekStart += 7;
+            }
+        }
+
+        public void AddCycleShifts()
+        {
+            string[] cycleValues = { "У", "Н", "У", "В", "У", "Н", "П", "В" };
+
+            for (int col = 1; col < dateTable.Columns.Count; col++)
+            {
+                List<int> freeRowIndices = new List<int>();
+
+                for (int row = 0; row < dateTable.Rows.Count - 2; row++)
+                {
+                    if (string.IsNullOrWhiteSpace(dateTable.Rows[row][col].ToString()))
+                    {
+                        freeRowIndices.Add(row);
+                    }
+                }
+
+                // Перемешиваем список (алгоритм Фишера-Йетса)
+                ShuffleList(freeRowIndices);
+
+                int cycleIndex = 0;
+                foreach (int rowIndex in freeRowIndices)
+                {
+                    dateTable.Rows[rowIndex][col] = cycleValues[cycleIndex];
+                    cycleIndex = (cycleIndex + 1) % cycleValues.Length;
+                }
+            }
+        }
+
+        public void ShuffleList<T>(List<T> list)
+        {
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                (list[i], list[j]) = (list[j], list[i]);
+            }
+        }
+
+        public int GetDayOfWeek(DayOfWeek dayOfWeek)
+        {
+            int day;
+            int startDay = (dayOfWeek == DayOfWeek.Monday) ? 1 : daysInMonth;
+            DateTime date = new DateTime(currentYear, currentMonth, startDay);
+            while (true)
+            {
+                if (date.DayOfWeek == dayOfWeek)
+                {
+                    day = date.Day;
+                    break;
+                }
+                else
+                {
+                    date = date.AddDays(1);
+                }
+            }
+
+            if (day > 7) return 0;
+            return day;
+        }
+
         public void AddDateToXml(string name, DateTime date)
         {
             dateTable.Clear();
-            dateTable.ReadXml(GetXmlFilePath(date.Year, date.Month));
-
+            dateTable.ReadXml(GetXmlFilePath());
+            //dateTable.Rows[1][1] = "ВХ";
             DataRow targetRow = null;
             foreach (DataRow row in dateTable.Rows)
             {
-                if (row["Имя/Число"].ToString() == name)
+                if (row["Имя/Число__"].ToString() == name)
                 {
                     targetRow = row;
                     break;
@@ -147,25 +254,25 @@ namespace LaTable
             }
 
             string columnName = date.Day.ToString();
-            targetRow[columnName] = "ВХ";
+            targetRow[$"{columnName}.1"] = "ВХ";
 
-            SaveDataInXml(date.Year, date.Month);
+            SaveDataInXml();
         }
 
-        public string GetXmlFilePath(int year, int month)
+        public string GetXmlFilePath()
         {
-            return $"Data/{year}{month}.xml";
+            return $"Data/{currentYear}{currentMonth}.xml";
         }
 
-        public void SaveDataInXml(int year, int month)
+        public void SaveDataInXml()
         {
-            dateTable.WriteXml(GetXmlFilePath(year, month), XmlWriteMode.WriteSchema);
+            dateTable.WriteXml(GetXmlFilePath(), XmlWriteMode.WriteSchema);
         }
 
-        public void ClearDataInXml(int year, int month)
+        public void ClearDataInXml()
         {
             dateTable.Clear();
-            dateTable.ReadXml(GetXmlFilePath(year, month));
+            dateTable.ReadXml(GetXmlFilePath());
 
             foreach (DataRow row in dateTable.Rows)
             {
@@ -175,7 +282,7 @@ namespace LaTable
                 }
             }
 
-            SaveDataInXml(year, month);
+            SaveDataInXml();
         }
 
         public void IncrementMonth()
@@ -189,6 +296,7 @@ namespace LaTable
             {
                 currentMonth += 1;
             }
+            daysInMonth = DateTime.DaysInMonth(currentYear, currentMonth);
         }
 
         public void DecrementMonth()
@@ -202,6 +310,7 @@ namespace LaTable
             {
                 currentMonth -= 1;
             }
+            daysInMonth = DateTime.DaysInMonth(currentYear, currentMonth);
         }
     }
 }

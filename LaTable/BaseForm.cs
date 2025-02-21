@@ -28,14 +28,14 @@ namespace LaTable
         {
             data.dateTable.Columns.Clear();
             data.dateTable.Rows.Clear();
-            string xmlFilePath = data.GetXmlFilePath(data.currentYear, data.currentMonth);
+            string xmlFilePath = data.GetXmlFilePath();
             if (File.Exists(xmlFilePath))
             {
                 data.dateTable.ReadXml(xmlFilePath);
             }
             else
             {
-                data.CreateAndInitializeXml(data.currentYear, data.currentMonth);
+                data.CreateAndInitializeXml();
             }
             CalendarGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             CalendarGrid.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.None;
@@ -60,7 +60,7 @@ namespace LaTable
 
         public void ForwardButtonClick(object sender, EventArgs e, Label DateLabel, DataGridView CalendarGrid)
         {
-            data.SaveDataInXml(data.currentYear, data.currentMonth);
+            data.SaveDataInXml();
             data.IncrementMonth();
             SetDataLabel(DateLabel);
             ShowDataInGrid(CalendarGrid);
@@ -68,7 +68,7 @@ namespace LaTable
 
         public void BackButtonClick(object sender, EventArgs e, Label DateLabel, DataGridView CalendarGrid)
         {
-            data.SaveDataInXml(data.currentYear, data.currentMonth);
+            data.SaveDataInXml();
             data.DecrementMonth();
             SetDataLabel(DateLabel);
             ShowDataInGrid(CalendarGrid);
