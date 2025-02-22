@@ -129,8 +129,13 @@ namespace LaTable
 
         private void makeButton_Click(object sender, EventArgs e)
         {
-            data.AddShifts();
-            UpdateCellColors(calendarGrid);
+            DialogResult result = MessageBox.Show("Все выходные расставлены?", "Подтверждение",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                data.MakeSchedule();
+                UpdateCellColors(calendarGrid);
+            }
         }
     }
 }

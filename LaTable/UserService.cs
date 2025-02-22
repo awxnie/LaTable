@@ -20,8 +20,8 @@ namespace LaTable
             new User("Жулдуз", "zhyldyz", "123"),
             new User("Лидия", "lidia", "123"),
             new User("Ольга", "olga", "123"),
+            new User("Евгения", "stas", "123"),
             new User("Алла", "alla", "123"),
-            new User("Евгения", "zhenya", "123"),
         };
 
         public User Authenticate(string login, string password)

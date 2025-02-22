@@ -36,7 +36,7 @@ namespace LaTable
             }
         }
 
-            public void InitializeDate()
+        public void InitializeDate()
         {
             currentYear = dateTime.Year;
             currentMonth = dateTime.Month;
@@ -105,25 +105,25 @@ namespace LaTable
             }
         }
 
-        public void AddShifts()
+        public void MakeSchedule()
         {
             for (int i = 0; i < dateTable.Rows.Count; i++)
             {
                 for (int j = 1; j < dateTable.Columns.Count; j++)
                 {
-                    dateTable.Rows[i][j] = "";
-                    /*if (!dateTable.Rows[i][j].ToString().Contains("ВХ"))
+                    //dateTable.Rows[i][j] = "";
+                    if (!dateTable.Rows[i][j].ToString().Contains("ВХ"))
                     {
                         dateTable.Rows[i][j] = "";
-                    }*/
+                    }
                 }
             }
-            AddRegularShifts();
-            AddRandomShifts();
-            AddCycleShifts();
+            AddRDMShifts();
+            //AddDaysOff();
+            AddMainShifts();
         }
 
-        public void AddRegularShifts()
+        public void AddRDMShifts()
         {
             int mondayIndex = GetDayOfWeek(DayOfWeek.Monday);
             int sundayIndex = GetDayOfWeek(DayOfWeek.Sunday);
@@ -149,7 +149,7 @@ namespace LaTable
             dateTable.Rows[2][daysInMonth - mondayIndex + 1] = "R";
         }
 
-        public void AddRandomShifts()
+        public void AddDaysOff()
         {
             int mondayIndex = GetDayOfWeek(DayOfWeek.Monday);
             int sundayIndex = GetDayOfWeek(DayOfWeek.Sunday);
@@ -159,19 +159,30 @@ namespace LaTable
 
             for (int week = 0; week < numberOfWeeks; week++)
             {
-                for (int nameIndex = 0; nameIndex <= userService.users.Count - 3; nameIndex++)
+                for (int nameIndex = 0; nameIndex <= userService.users.Count - 2; nameIndex++)
                 {
-                    for (int shiftCount = 0; shiftCount < 2; shiftCount++)
+                    int assignedDaysOff = 0; // Считаем, сколько выходных уже назначено этому пользователю
+
+                    while (assignedDaysOff < 2) // Каждому пользователю по 2 выходных
                     {
                         int randomDay = random.Next(currentWeekStart, currentWeekStart + 7);
+                        int columnIndex = randomDay - mondayIndex + 1;
 
-                        if (string.IsNullOrWhiteSpace(dateTable.Rows[nameIndex][randomDay - mondayIndex + 1].ToString()))
+                        // Проверяем, не превышен ли лимит 5 ВХ в этом дне (столбце)
+                        int dayOffCount = 0;
+                        for (int row = 0; row < dateTable.Rows.Count - 2; row++)
                         {
-                            dateTable.Rows[nameIndex][randomDay - mondayIndex + 1] = "ВХ";
+                            if (dateTable.Rows[row][columnIndex].ToString() == "ВХ")
+                            {
+                                dayOffCount++;
+                            }
                         }
-                        else
+
+                        // Если в дне меньше 5 выходных, назначаем выходной
+                        if (dayOffCount < 5 && string.IsNullOrWhiteSpace(dateTable.Rows[nameIndex][columnIndex].ToString()))
                         {
-                            shiftCount--;
+                            dateTable.Rows[nameIndex][columnIndex] = "ВХ";
+                            assignedDaysOff++;
                         }
                     }
                 }
@@ -179,15 +190,15 @@ namespace LaTable
             }
         }
 
-        public void AddCycleShifts()
+        private void AddMainShifts()
         {
-            string[] cycleValues = { "У", "Н", "У", "В", "У", "Н", "П", "В" };
+            string[] cycleValues = { "У", "У", "В", "В", "Н", "П", "П", "В" };
 
             for (int col = 1; col < dateTable.Columns.Count; col++)
             {
                 List<int> freeRowIndices = new List<int>();
 
-                for (int row = 0; row < dateTable.Rows.Count - 2; row++)
+                for (int row = 0; row < dateTable.Rows.Count - 1; row++)
                 {
                     if (string.IsNullOrWhiteSpace(dateTable.Rows[row][col].ToString()))
                     {
@@ -195,14 +206,43 @@ namespace LaTable
                     }
                 }
 
-                // Перемешиваем список (алгоритм Фишера-Йетса)
-                ShuffleList(freeRowIndices);
+                ShuffleList(freeRowIndices); // Перемешивание списка
 
-                int cycleIndex = 0;
-                foreach (int rowIndex in freeRowIndices)
+                bool success = false;
+                int maxAttempts = 1000; // Ограничение попыток
+                int attempt = 0;
+
+                while (!success && attempt < maxAttempts)
                 {
-                    dateTable.Rows[rowIndex][col] = cycleValues[cycleIndex];
-                    cycleIndex = (cycleIndex + 1) % cycleValues.Length;
+                    attempt++;
+                    bool validAssignment = false;
+                    int cycleIndex = 0;
+
+                    foreach (int rowIndex in freeRowIndices)
+                    {
+                        string prevShift = dateTable.Rows[rowIndex][col - 1].ToString();
+                        string curShift = cycleValues[cycleIndex];
+
+                        if ((curShift == "Н" && rowIndex < 3) ||
+                            (prevShift == "Н" && (curShift == "У" || curShift == "В" || curShift == "П")) ||
+                            (prevShift == "В" && curShift == "У"))
+                        {
+                            ShuffleList(freeRowIndices);
+                            validAssignment = false;
+                            break;
+                        }
+                        else
+                        {
+                            dateTable.Rows[rowIndex][col] = cycleValues[cycleIndex];
+                            cycleIndex = (cycleIndex + 1) % cycleValues.Length;
+                            validAssignment = true;
+                        }
+                    }
+
+                    if (validAssignment)
+                    {
+                        success = true;
+                    }
                 }
             }
         }
@@ -242,7 +282,6 @@ namespace LaTable
         {
             dateTable.Clear();
             dateTable.ReadXml(GetXmlFilePath());
-            //dateTable.Rows[1][1] = "ВХ";
             DataRow targetRow = null;
             foreach (DataRow row in dateTable.Rows)
             {
